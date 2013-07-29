@@ -1,7 +1,5 @@
 import urllib2
 import time
-from datetime import datetime
-from email.utils import parsedate_tz
 from xml.dom import minidom
 from BeautifulSoup import BeautifulSoup
 import xbmc
@@ -28,6 +26,9 @@ class CorriereTV:
             channel["url"] = link["href"]
             if channel["url"].find("http://static.video.corriereobjects.it/widget/content/playlist/xml/") == -1:
                 continue
+            channel["url"] = channel["url"].replace("http://static.video.corriereobjects.it/widget/content/playlist/xml/playlist_",
+                "http://static.video.corriereobjects.it/widget/content/playlist/playlist_")
+            channel["url"] = channel["url"].replace("_dateDesc.xml", "_dateDesc.rss")
             channels.append(channel)
         
         return channels
@@ -43,41 +44,24 @@ class CorriereTV:
             videoId = videoNode.getElementsByTagName('guid')[0].firstChild.data
             video["title"] = videoNode.getElementsByTagName('title')[0].firstChild.data.strip()
             # print video["title"].encode('utf-8')
-            # print self.getVideoMetaDataURL(videoId)
             
-            video["description"] = videoNode.getElementsByTagName('description')[0].firstChild.data
-            t = parsedate_tz(videoNode.getElementsByTagName('pubDate')[0].firstChild.data)
-            video["date"] = t[:9]
+            try:
+                video["description"] = videoNode.getElementsByTagName('description')[0].firstChild.data
+            except:
+                video["description"] = ""
+            dt = videoNode.getElementsByTagName('pubDate')[0].firstChild.data
+            t = time.strptime(dt, '%Y-%m-%dT%H:%M:%S.%fZ')
+            video["date"] = t
 
-            metadata = self.getVideoMetaData(videoId)
-            if metadata != {}:
-                video.update(metadata)
-                videos.append(video)
-            
-        return videos
-        
-    def getVideoMetaDataURL(self, videoId):
-        url = "http://static2.video.corriereobjects.it/widget/content/video/rss/video_%s.rss" % videoId
-        return url
-
-    def getVideoMetaData(self, videoId):
-        metadata = {}
-        
-        url = self.getVideoMetaDataURL(videoId)
-        try:
-            xmldata = urllib2.urlopen(url).read()
-            dom = minidom.parseString(xmldata)
-
-            metadata["url"] = dom.getElementsByTagName('media:content')[0].attributes["url"].value
-            metadata["url"] = metadata["url"].replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
-            thumbs = dom.getElementsByTagName('media:thumbnail')
+            video["url"] = videoNode.getElementsByTagName('media:content')[0].attributes["url"].value
+            video["url"] = video["url"].replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
+            thumbs = videoNode.getElementsByTagName('media:thumbnail')
             for thumb in thumbs:
                 width = thumb.attributes["width"].value
                 if width == "298" or width == "480":
-                    metadata["thumb"] = thumb.attributes["url"].value
+                    video["thumb"] = thumb.attributes["url"].value
                     break
-        except:
-             xbmc.log("[CorriereTV] Error retrieving metadata: %s" % url, xbmc.LOGDEBUG) 
+
+            videos.append(video)
             
-        return metadata
-        
+        return videos
