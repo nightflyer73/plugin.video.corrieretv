@@ -48,7 +48,7 @@ def show_video_files(url):
     corrieretv = CorriereTV()
     items = corrieretv.getVideoByChannel(url)
     for item in items:
-        title =  item["title"] + " (" + time.strftime("%d/%m/%Y %H:%M", item["date"]) + ")"
+        title = item["title"] + " (" + time.strftime("%d/%m/%Y %H:%M", item["date"]) + ")"
         liStyle=xbmcgui.ListItem(title, thumbnailImage=item["thumb"])
         liStyle.setInfo(type="video",
             infoLabels={"Title": title
