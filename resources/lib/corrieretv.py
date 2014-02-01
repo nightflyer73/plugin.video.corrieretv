@@ -2,7 +2,6 @@ import urllib2
 import time
 from xml.dom import minidom
 from BeautifulSoup import BeautifulSoup
-import xbmc
 
 class CorriereTV:
     __USERAGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0"
