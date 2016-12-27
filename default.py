@@ -45,6 +45,7 @@ def show_root_folder():
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
 def show_video_files(url):
+    xbmc.log("Category URL: " + url)
     corrieretv = CorriereTV()
     items = corrieretv.getVideoByChannel(url)
     for item in items:
