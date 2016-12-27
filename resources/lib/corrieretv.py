@@ -42,7 +42,6 @@ class CorriereTV:
             video = {}
             videoId = videoNode.getElementsByTagName('guid')[0].firstChild.data
             video["title"] = videoNode.getElementsByTagName('title')[0].firstChild.data.strip()
-            # print video["title"].encode('utf-8')
             
             try:
                 video["description"] = videoNode.getElementsByTagName('description')[0].firstChild.data
