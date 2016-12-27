@@ -53,13 +53,14 @@ class CorriereTV:
 
             video["url"] = videoNode.getElementsByTagName('media:content')[0].attributes["url"].value
             video["url"] = video["url"].replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
-            thumbs = videoNode.getElementsByTagName('media:thumbnail')
+            
             video["thumb"] = ""
-            for thumb in thumbs:
-                width = thumb.attributes["width"].value
-                if width == "298" or width == "367" or width == "480":
+            width = 0
+            for thumb in videoNode.getElementsByTagName('media:thumbnail'):
+                thumbWidth = thumb.attributes["width"].value
+                if thumbWidth > width and thumbWidth <= "480":
                     video["thumb"] = thumb.attributes["url"].value
-                    break
+                    width = thumbWidth
 
             videos.append(video)
             
