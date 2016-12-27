@@ -52,7 +52,10 @@ class CorriereTV:
             video["date"] = t
 
             video["url"] = videoNode.getElementsByTagName('media:content')[0].attributes["url"].value
-            video["url"] = video["url"].replace("/z/", "/i/").replace("manifest.f4m","master.m3u8")
+            video["url"] = video["url"].replace("/z/", "/i/")
+            video["url"] = video["url"].replace("manifest.f4m","master.m3u8")
+            video["url"] = video["url"].replace("/i/i/", "/i/")
+            video["url"] = video["url"].replace("/master.m3u8/master.m3u8", "/master.m3u8")
             
             video["thumb"] = ""
             width = 0
