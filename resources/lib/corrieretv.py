@@ -1,4 +1,6 @@
 import urllib2
+import json
+import re
 import time
 from xml.dom import minidom
 from BeautifulSoup import BeautifulSoup
@@ -51,11 +53,11 @@ class CorriereTV:
             t = time.strptime(dt, '%Y-%m-%dT%H:%M:%S.%fZ')
             video["date"] = t
 
-            video["url"] = videoNode.getElementsByTagName('media:content')[0].attributes["url"].value
-            video["url"] = video["url"].replace("/z/", "/i/")
-            video["url"] = video["url"].replace("manifest.f4m","master.m3u8")
-            video["url"] = video["url"].replace("/i/i/", "/i/")
-            video["url"] = video["url"].replace("/master.m3u8/master.m3u8", "/master.m3u8")
+            video["pageUrl"] = videoNode.getElementsByTagName('link')[0].firstChild.data
+
+            # video["url"] = videoNode.getElementsByTagName('media:content')[0].attributes["url"].value
+            # video["url"] = video["url"].replace("/z/", "/i/")
+            # video["url"] = video["url"].replace("manifest.f4m","master.m3u8")
             
             video["thumb"] = ""
             width = 0
@@ -68,3 +70,20 @@ class CorriereTV:
             videos.append(video)
             
         return videos
+
+    def getVideoUrl(self, pageUrl):
+        # Parse the HTML page to get the Video URL
+        data = urllib2.urlopen(pageUrl).read()
+        tree = BeautifulSoup(data, convertEntities=BeautifulSoup.HTML_ENTITIES)
+        
+        script = tree.find("script", text=re.compile("mediaFile"))
+        match = re.search(r'"mediaFile"\s*:\s*(\[[^\]]+\])', script, re.DOTALL)
+        string = match.group(1)
+        mediaFiles = json.loads(string)
+
+        for mediaFile in mediaFiles:
+            if mediaFile["mimeType"] in ("application/vnd.apple.mpegurl", "video/x-flv"):
+                videoUrl = mediaFile["value"]
+                break
+        return videoUrl
+        
