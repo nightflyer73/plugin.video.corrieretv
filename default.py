@@ -50,16 +50,16 @@ def show_video_files(url):
     corrieretv = CorriereTV()
     items = corrieretv.getVideoByChannel(url)
     for item in items:
-        title = item["title"] + " (" + time.strftime("%d/%m/%Y %H:%M", item["date"]) + ")"
+        title = item["title"] + " (" + item["date"] + ")"
         liStyle=xbmcgui.ListItem(title, thumbnailImage=item["thumb"])
         liStyle.setProperty('IsPlayable', 'true')
-        addLinkItem({"mode": "play", "url": item["pageUrl"]}, liStyle)
+        addLinkItem({"mode": "play", "id": item["videoId"]}, liStyle)
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
-def play(pageUrl):
-    xbmc.log("Page URL: " + pageUrl)
+def play(videoId):
+    xbmc.log("Video ID: " + videoId)
     corrieretv = CorriereTV()
-    videoUrl = corrieretv.getVideoUrl(pageUrl)
+    videoUrl = corrieretv.getVideoUrl(videoId)
     
     xbmc.log("Video URL: " + videoUrl)
     
@@ -70,10 +70,11 @@ def play(pageUrl):
 params = parameters_string_to_dict(sys.argv[2])
 mode = str(params.get("mode", ""))
 url = str(params.get("url", ""))
+videoId = str(params.get("id", ""))
 
 if mode == "" and url == "":
     show_categories()
 elif mode == "video_files":
     show_video_files(url)
 else:
-    play(url)
+    play(videoId)
