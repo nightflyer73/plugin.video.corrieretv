@@ -27,6 +27,10 @@ class CorriereTV:
             channel["title"] = link.text
             channel["url"] = link["href"]
             
+            if channel["url"] == "":
+                continue
+            if channel["url"][0:2] == "//":
+                channel["url"] = "http:" + channel["url"]
             if channel["url"][0] == "/":
                 channel["url"] = self.__BaseUrl + channel["url"]
             if channel["url"][-1:] != "/":
